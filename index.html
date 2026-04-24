@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOOST FPS — Мануал по оптимизации ПК для игр + NVIDIA</title>
+    <!-- Favicon (ракета) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 15 L65 40 L85 40 L65 60 L75 85 L50 70 L25 85 L35 60 L15 40 L35 40 Z' fill='%23a78bfa' /%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05050e;
+            --surface: rgba(18, 16, 34, 0.7);
+            --accent1: #a78bfa;
+            --accent2: #f472b6;
+            --text: #e4e0f7;
+            --text-muted: #9b96bb;
+            --border: rgba(255, 255, 255, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .bg-glow1 {
+            position: absolute;
+            width: 70vw;
+            height: 70vw;
+            background: radial-gradient(circle, rgba(168, 130, 240, 0.12) 0%, transparent 70%);
+            top: -15%;
+            left: -15%;
+            animation: float1 12s ease-in-out infinite;
+        }
+        .bg-glow2 {
+            position: absolute;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(244, 114, 182, 0.08) 0%, transparent 70%);
+            bottom: -10%;
+            right: -10%;
+            animation: float2 10s ease-in-out infinite;
+        }
+        .bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 70%);
+        }
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(2%, -1%); }
+            66% { transform: translate(-1%, 2%); }
+        }
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(-2%, -1%); }
+            66% { transform: translate(1%, 2%); }
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 8, 20, 0.75);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #c084fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        .seller-badge {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--border);
+            border-radius: 3rem;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .seller-badge i { color: var(--accent2); margin-right: 5px; }
+
+        .container {
+            width: 100%;
+            padding: 2rem 2rem;
+            flex: 1;
+        }
+
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: 0.3s;
+        }
+        .card:hover {
+            border-color: rgba(168, 130, 240, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid var(--accent1);
+            padding-left: 1.2rem;
+        }
+        .card p {
+            margin-bottom: 1rem;
+            color: var(--text);
+            max-width: 80ch;
+        }
+        .card ul, .card ol {
+            margin: 0.8rem 0 1.2rem 1.8rem;
+            color: var(--text-muted);
+        }
+        .card li { margin-bottom: 0.6rem; }
+
+        .screenshot-img {
+            max-width: 100%;
+            border-radius: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+            display: block;
+            transition: 0.3s;
+        }
+        .screenshot-img:hover {
+            transform: scale(1.01);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+
+        /* Кнопки */
+        .btn {
+            padding: 0.8rem 2rem;
+            border-radius: 3rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            margin-right: 0.8rem;
+            margin-bottom: 0.8rem;
+            vertical-align: middle;
+            min-height: 3rem;
+            line-height: 1.2;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 12px 30px rgba(236, 72, 153, 0.5);
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #ddd;
+            background: transparent;
+        }
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.5);
+            color: white;
+        }
+        .btn-download {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-download:hover {
+            background: rgba(168, 130, 240, 0.2);
+            border-color: var(--accent1);
+            color: white;
+        }
+
+        .warning-box {
+            background: rgba(244, 114, 182, 0.1);
+            border-left: 4px solid var(--accent2);
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            margin: 1.2rem 0;
+            color: var(--text-muted);
+            display: inline-block;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .card { padding: 1.8rem; }
+            .btn { margin-right: 0.4rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-layer">
+    <div class="bg-glow1"></div>
+    <div class="bg-glow2"></div>
+    <div class="bg-grid"></div>
+</div>
+<div class="wrapper">
+    <header class="header">
+        <a href="#" class="logo">BOOST FPS</a>
+        <div class="seller-badge">
+            <i class="fas fa-user-circle"></i> Продавец: <strong>ShizzyBoost</strong>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Введение -->
+        <div class="card">
+            <h2><i class="fas fa-rocket"></i> Мануал по оптимизации ПК для игр + Настройка NVIDIA</h2>
+            <p>Данный способ поможет:</p>
+            <ul>
+                <li><i class="fas fa-check" style="color: var(--accent1);"></i> Уменьшить расход оперативной памяти</li>
+                <li><i class="fas fa-arrow-up" style="color: var(--accent1);"></i> Увеличить FPS в играх</li>
+            </ul>
+        </div>
+
+        <!-- 1) Визуальные эффекты -->
+        <div class="card" id="step1">
+            <h2><i class="fas fa-desktop"></i> 1. Настройка визуальных эффектов</h2>
+            <p>ПКМ по «Этот компьютер» → Свойства → Слева «Дополнительные параметры системы» → вкладка «Визуальные эффекты» → пункт «Быстродействие». Нажмите «Параметры» и выставите настройки согласно скриншоту.</p>
+            <img src="https://sun9-62.userapi.com/s/v1/ig2/FIqaHznPsvtZ_W8FfdMj9tTGYVsgut4MraOnCfR3IeMKzl-5PwUfRkshX7O0EWWnMRTHJgZ5rXCcKcbkF2z3WrOO.jpg?quality=95&as=32x40,48x61,72x91,108x136,160x202,240x303,360x454,414x522&from=bu&u=2aSNZFyhBpj4R2d2nKlDwqtKP5oKXKtJz030fj6IGxc&cs=414x0" alt="Визуальные эффекты" class="screenshot-img">
+        </div>
+
+        <!-- 2) Отключение служб -->
+        <div class="card" id="step2">
+            <h2><i class="fas fa-cogs"></i> 2. Отключение лишних служб</h2>
+            <p>Используйте программу Easy Service Optimizer. Выберите Extreme внизу, затем вкладку Service → Check all, далее File → Apply services (или Ctrl+S) и перезагрузите компьютер.</p>
+            <a href="https://www.softportal.com/getsoft-41169-easy-service-optimizer-2.html" target="_blank" class="btn btn-download">
+                <i class="fas fa-download"></i> Скачать Easy Service Optimizer
+            </a>
+            <img src="https://sun9-55.userapi.com/s/v1/ig2/0wcVTJ_yPpdAzSD2lDOTq97gryu_HIxYM5fP9LWInRg9wB9o-WVVfFUVwGYMjsdjsVxOusKghOkzujrlAs4lWRFI.jpg?quality=95&as=32x24,48x36,72x54,108x81,160x121,240x181,360x271,480x362,540x407,610x460&from=bu&u=VndkOHtVCw1Fely1qIMxupajc2GvKQsOXZ0kjfq1buc&cs=610x0" alt="Easy Service Optimizer" class="screenshot-img">
+        </div>
+
+        <!-- 3) Телеметрия -->
+        <div class="card" id="step3">
+            <h2><i class="fas fa-shield-alt"></i> 3. Отключаем телеметрию, удаляем Metro приложения</h2>
+            <p>Программа DWS (Destroy Windows Spying). Настройки как на скриншоте.</p>
+            <div class="warning-box">
+                <i class="fas fa-exclamation-triangle"></i> Не ставьте галочку «Добавить шпионские домены в hosts» — перестанет работать Skype.
+            </div>
+            <a href="https://www.softportal.com/software-40898-destroy-windows-10-spying.html" target="_blank" class="btn btn-download">
+                <i class="fas fa-download"></i> Скачать DWS
+            </a>
+            <img src="https://sun9-24.userapi.com/s/v1/ig2/jCCWFrl97LxgxwVMiucmBsV_ULaK8sL0JDp25O1NnhiASx6lSiAvLj5Sm9yYIJj5qnvZtA0KaH6DUOwF6zDOE8_n.jpg?quality=95&as=32x32,48x49,72x73,108x109,160x162,240x243,360x365,458x464&from=bu&u=JdG3zlbUHNAfYvugRuNQ48hFc54F7QHcG0fLmoAYKEA&cs=458x0" alt="DWS" class="screenshot-img">
+            <p>Ставим галочки как на скриншоте, переходим в «Главная» и жмем «Destroy Windows». Во вкладке «Утилиты» удаляем всё лишнее: Win10 Metro, OneDrive, отключаем UAC, Office 2016 telemetry; Windows Update — по желанию.</p>
+        </div>
+
+        <!-- 4) План электропитания -->
+        <div class="card" id="step4">
+            <h2><i class="fas fa-bolt"></i> 4. Настройки плана электропитания</h2>
+            <p>Пуск → Панель управления → Электропитание → Выбираем <strong>«Высокая производительность»</strong>.</p>
+        </div>
+
+        <!-- 5) Автозагрузка -->
+        <div class="card" id="step5">
+            <h2><i class="fas fa-tasks"></i> 5. Очищаем автозагрузку и лишние сервисы</h2>
+            <p>Нажимаем сочетание клавиш <code>WIN+R</code>, вводим <code>msconfig.exe</code>. Переходим на вкладку «Службы», ставим галочку «Не отображать службы Microsoft» и снимаем галочки со всего, чем не пользуемся (кроме античитов).</p>
+            <img src="https://sun9-49.userapi.com/s/v1/ig2/c60Sl0m4FAZd1aN_l9-Q9p1VlqnK4AKqyySX-0RRXwCiathFJXRGN6Yx1LjdgXb5XQyUbOM2YfsNzf1_heEofnv2.jpg?quality=95&as=32x22,48x32,72x49,108x73,160x108,240x162,360x243,480x324,540x364,578x390&from=bu&u=b7_qInfScdMOD-FDTKJkJWyiUvrFj5kZJbuCrUZFQf8&cs=578x0" alt="msconfig" class="screenshot-img">
+        </div>
+
+        <!-- 6) Звук -->
+        <div class="card" id="step6">
+            <h2><i class="fas fa-volume-up"></i> 6. Настройки звука Windows</h2>
+            <p>ПКМ на значок динамика в трее → «Устройства воспроизведения» → выберите устройство по умолчанию → «Свойства» → вкладка «Дополнительно» → выберите 16 бит 44100 Гц. Если есть вкладка с улучшениями, отключите всё. Аналогично для записывающих устройств.</p>
+            <img src="https://sun9-30.userapi.com/s/v1/ig2/v0AG2fUR2OWb8kLqIxqBJQoxx83BugxILM_xL8FljwPpOuRhlfofwdchPcBR57r9g-szS0GiZq2c-_61ygYsL4Oa.jpg?quality=95&as=32x15,48x23,72x35,108x52,160x77,240x115,360x173,480x230,540x259,605x290&from=bu&u=fMFugdR8YI01pgTs2xGHiLDrrwL7ZWgQaYHUvzmEZmU&cs=605x0" alt="Настройки звука" class="screenshot-img">
+        </div>
+
+        <!-- 7) Драйверы (исправлено) -->
+        <div class="card" id="step7">
+            <h2><i class="fas fa-microchip"></i> 7. Всегда используйте последние версии драйверов</h2>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem; margin: 1.2rem 0;">
+                <a href="https://www.nvidia.ru/Download/index.aspx?lang=ru" target="_blank" class="btn btn-download"><i class="fab fa-nvidia"></i> NVIDIA Driver</a>
+                <a href="https://www.amd.com/ru/support" target="_blank" class="btn btn-download"><i class="fab fa-amd"></i> AMD Driver</a>
+                <a href="https://www.realtek.com/" target="_blank" class="btn btn-download">Realtek HD Drivers</a>
+            </div>
+        </div>
+
+        <!-- 8) NVIDIA -->
+        <div class="card" id="step8">
+            <h2><i class="fas fa-sliders-h"></i> 8. Настройки в панели управления NVIDIA</h2>
+            <p>Настройте всё в точности как на скриншотах. Это самый важный пункт для увеличения FPS. В зависимости от конфигурации ПК может дать прирост от 30 до 100 кадров.</p>
+            <img src="https://sun9-66.userapi.com/s/v1/ig2/jYEqJW-9E1vp8YhJTj3YgQqt6IMCCI6ZTIV0whRDETuYWnjPDN17uONR4A86jjaOllkKv9kD9gIfqv1Do5AG42FF.jpg?quality=95&as=32x23,48x35,72x52,108x79,160x116,240x175,360x262,480x349,540x393,616x448&from=bu&u=3DD1GJ_S4lsp6Dr1pUTltoHjzXi4tiH8nwPzBtcdLMs&cs=616x0" alt="NVIDIA 1" class="screenshot-img">
+            <img src="https://sun9-71.userapi.com/s/v1/ig2/ZajGOj0Crsf_rYxIcW5mucEjWagJBz7mXe3S-HUy7E6OQWECO1-oiFT_Jech6rx46KJKVktigRjSEr3j7Ndbt_CI.jpg?quality=95&as=32x24,48x37,72x55,108x82,160x122,240x183,360x275,480x367,521x398&from=bu&u=iKm3d9MUCkRtuCQcLdwjMDMTe-8-fz37QVXtCJ8aB_E&cs=521x0" alt="NVIDIA 2" class="screenshot-img">
+            <img src="https://sun9-58.userapi.com/s/v1/ig2/uO16HyyPZNrU3VGqSQTMcYOxSuWaJTAFND0fjlHAMj4R3uYi27sXZELsBoKhzXTEd1cuoo2JAylcaWnHf5luXcOP.jpg?quality=95&as=32x25,48x37,72x55,108x83,160x123,240x185,360x278,480x370,515x397&from=bu&u=c6jVK9tNlo2CjRJ7cyoTmvSvPIt2XzmfjeRiEpBrvg4&cs=515x0" alt="NVIDIA 3" class="screenshot-img">
+            <img src="https://sun9-63.userapi.com/s/v1/ig2/IevqhXM8iwjPorxNO0DKzNjQHAf8wmuKWZcPW5YeC5Ih2pLmOfsn9MsYrUaBBDN8UrdyWXqWfOb_CjFn0fnZ2CU2.jpg?quality=95&as=32x25,48x37,72x56,108x84,160x124,240x187,360x280,480x373,516x401&from=bu&u=Nr6GVokEsh9aD3-icm3VFzPlOenBxlHao-L57rbAl_Q&cs=516x0" alt="NVIDIA 4" class="screenshot-img">
+        </div>
+
+        <!-- 9) Quick CPU -->
+        <div class="card" id="step9">
+            <h2><i class="fas fa-microchip"></i> 9. Quick CPU</h2>
+            <p>Установите план электропитания «Высокая производительность» и выкрутите все ползунки на 100%. Программа не позволит простаивать ядрам процессора и повысит производительность в играх, чувствительных к CPU.</p>
+            <a href="https://coderbag.com/product/quickcpu" target="_blank" class="btn btn-download">
+                <i class="fas fa-download"></i> Скачать Quick CPU
+            </a>
+        </div>
+
+        <!-- Заключение -->
+        <div class="card">
+            <h2><i class="fas fa-check-circle"></i> Заключение</h2>
+            <p>Также обязательны регулярные процедуры:</p>
+            <ul>
+                <li>Физическая чистка ПК (каждые 4–6 месяцев)</li>
+                <li>Проверка системы на вирусы (еженедельно)</li>
+            </ul>
+            <p>Если вы выполнили все пункты, ваш FPS обязательно вырастет, и играть станет приятнее. Спасибо за покупку!</p>
+        </div>
+
+        <div class="footer">
+            <i class="far fa-copyright"></i> ShizzyBoost — профессиональные гайды по оптимизации ПК.
+        </div>
+    </div>
+</div>
+</body>
+</html>
